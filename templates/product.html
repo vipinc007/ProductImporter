@@ -1,0 +1,73 @@
+{% extends "common/layout.html" %}
+{% block content %}
+
+    <h3>{{ doaction }} Product</h3>
+<div id="adderror"></div>
+    <form id="addform" method="POST">
+    <input type="hidden" name="doaction" id="doaction" value="{{ doaction }}">
+  <div class="form-group">
+    <label for="email">Name:</label>
+    <input required type="text" class="form-control" placeholder="Enter name" value="{{ item[0] }}" name="pname">
+  </div>
+        {% if doaction =='add' %}
+  <div class="form-group">
+    <label for="pwd">SKU:</label>
+    <input required type="text" class="form-control" placeholder="Enter sku" value="{{ item[1] }}" name="psku">
+  </div>
+        {% endif %}
+
+    {% if doaction =='edit' %}
+  <div class="form-group">
+    <label for="pwd">SKU:</label>
+    <input disabled type="text" class="form-control" placeholder="Enter sku" value="{{ item[1] }}" name="psku">
+  </div>
+        {% endif %}
+        <div class="form-group">
+    <label for="pwd">Description:</label>
+    <textarea required style="resize:none" rows="5"  class="form-control" name="pdescription" placeholder="Enter Description" >{{ item[2] }}</textarea>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+    <a class="btn btn-primary" href="../products">All Products</a>
+</form>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            var productadded = false;
+            var forfor = '{{ doaction }}';
+            // File upload via Ajax
+            $("#addform").on('submit', function(e){
+                productadded = false;
+
+                $('#adderror').html('');
+                   var form_data = $(this).serialize();
+                e.preventDefault();
+                $.ajax({
+
+                    type: 'POST',
+                    url: '../add_edit_product',
+                    data: form_data,
+                    cache: false,
+                    error:function(){
+                        $('#adderror').html('<p style="color:#EA4335;">Add product, please try again.</p>');
+                    },
+                    success: function(resp){
+                        if(resp == 'ok'){
+                            $('#addform')[0].reset();
+                            if(forfor=='edit')
+                                $('#adderror').html('<p style="color:#28A74B;">Changes Saved!</p>');
+                            else if(forfor=='add')
+                                $('#adderror').html('<p style="color:#28A74B;">Added New Product</p>');
+                            //setTimeout(function(){ location.reload(true); }, 2000);
+
+                        }else if(resp == 'err'){
+                            $('#adderror').html('<p style="color:#EA4335;">Erro</p>');
+                        }
+                    }
+                });
+            });
+
+
+        });
+        </script>
+{% endblock %}

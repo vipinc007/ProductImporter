@@ -1,0 +1,163 @@
+{% extends "common/layout.html" %}
+{% block content %}
+    <form id="uploadForm" accept-charset="UTF-8" method="POST" target="_blank">
+    <hr>
+    <div class="form-group mt-3">
+    <label class="mr-2">Upload CSV</label>
+    <input type="file" name="file">
+    </div>
+    <hr>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <br>
+    <!-- Progress bar -->
+					<div class="progress">
+						<div class="progress-bar" id="uploadProgress"></div>
+					</div>
+
+					<!-- Display upload status -->
+					<div id="uploadStatus"></div><br>
+
+                    <div class="progress">
+						<div class="progress-bar" id="importProgress"></div>
+					</div>
+
+					<!-- Display upload status -->
+					<div id="importStatus"></div>
+     <script type="text/javascript">
+        $(document).ready(function(){
+
+            var importdone = false;
+            // File upload via Ajax
+            $("#uploadForm").on('submit', function(e){
+                importdone = false;
+                $("#uploadProgress").width(0 + '%');
+                $("#uploadProgress").html(0+'%');
+                $('#uploadStatus').html('');
+                $('#importStatus').html('');
+                e.preventDefault();
+                $.ajax({
+                    xhr: function() {
+                        var xhr = new window.XMLHttpRequest();
+                        xhr.upload.addEventListener("progress", function(evt) {
+                            if (evt.lengthComputable) {
+                                var percentComplete = Math.round((evt.loaded / evt.total) * 100);
+                                //console.log(percentComplete);
+                                {#$(".progress-bar").width(percentComplete + '%');#}
+                                {#$(".progress-bar").html(percentComplete+'%');#}
+                                $("#uploadProgress").width(percentComplete + '%');
+                                $("#uploadProgress").html(percentComplete+'%');
+                            }
+                       }, false);
+                       return xhr;
+                    },
+                    type: 'POST',
+                    url: 'upload',
+                    data: new FormData(this),
+                    contentType: false,
+                    cache: false,
+                    processData:false,
+                    beforeSend: function(){
+                        //$(".progress-bar").width('0%');
+                        $("#uploadProgress").width('0%');
+                        //$('#uploadStatus').html('<img src="images/loading.gif"/>');
+                    },
+                    error:function(){
+                        $('#uploadStatus').html('<p style="color:#EA4335;">File upload failed, please try again.</p>');
+                    },
+                    success: function(resp){
+                        if(resp == 'ok'){
+                            $('#uploadForm')[0].reset();
+                            $('#uploadStatus').html('<p style="color:#28A74B;">File has uploaded successfully!</p>');
+                            startrequ1();
+                            Import();
+
+                        }else if(resp == 'err'){
+                            $('#uploadStatus').html('<p style="color:#EA4335;">Please select a valid file to upload.</p>');
+                        }
+                    }
+                });
+            });
+
+
+            function Import()
+            {
+
+                $.ajax({
+                    xhr: function() {
+                        var xhr = new window.XMLHttpRequest();
+                       return xhr;
+                    },
+                    type: 'POST',
+                    url: 'importdata',
+                    data: null,
+                    contentType: false,
+                    cache: false,
+                    processData:false,
+                    beforeSend: function(){
+                        $("#importProgress").width('0%');
+                    },
+                    error:function(){
+                        $('#importStatus').html('<p style="color:#EA4335;">File import failed, please try again.</p>');
+                    },
+                    success: function(resp){
+                        if(resp == 'ok'){
+                            importdone = true;
+                            $('#importStatus').html('<p style="color:#28A74B;">File has imported successfully!</p>');
+                        }else if(resp == 'err'){
+                            $('#importStatus').html('<p style="color:#EA4335;">Please select a valid file to upload.</p>');
+                        }
+                    }
+                });
+
+            }
+
+            function deleteuploadfile()
+            {
+
+                    $.ajax({
+                        xhr: function() {
+                            var xhr = new window.XMLHttpRequest();
+                           return xhr;
+                        },
+                        type: 'POST',
+                        url: 'deleteuploadfile',
+                        data: null,
+                        contentType: false,
+                        cache: false,
+                        processData:false,
+                        success: function(resp){
+
+                        }
+                    });
+
+            }
+            function startrequ1() {
+                var eventSource = new EventSource('/stream');
+                var cnt=0;
+                eventSource.onmessage = function (m) {
+                    var el = document.getElementById('messages');
+                    d = m.data
+                    tot= parseInt(d.split(',')[0]);
+                    totimported= parseInt(d.split(',')[1]);
+                    if(importdone)
+                        totimported = tot;
+
+                    var percentComplete = Math.round((totimported/tot) * 100);
+
+                    $("#importProgress").width(percentComplete + '%');
+                    $("#importProgress").html(percentComplete+'%');
+
+                    if(importdone)
+                    {
+                        eventSource.close();
+                        deleteuploadfile();
+                    }
+
+                }
+            }
+        });
+
+
+        </script>
+{% endblock %}

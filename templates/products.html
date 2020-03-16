@@ -1,0 +1,79 @@
+{% extends "common/layout.html" %}
+{% block content %}
+
+      {{ pagination.links }}
+      <div class="table-responsive">
+            <div id="adderror"></div>
+      <a class="btn btn-primary" href="product/0">Add Product</a>
+          <table class="table table-bordered">
+              <thead>
+                <tr>
+                    <th width="15%">Name</th>
+                    <th width="15%">Sku</th>
+                    <th width="58%">Description</th>
+                    <th width="12%"></th>
+                </tr>
+              </thead>
+              <tbody>
+
+                  {% for key,value in table.iterrows() %}
+                      <tr>
+                          <td>{{ value['name'] |safe }}</td>
+                          <td>{{ value['sku'] |safe }}</td>
+                          <td>{{ value['description'] |safe }}</td>
+                            <td>
+                                <a href="product/{{ value['sku'] |safe }}">Edit</a> |
+                                <a class='delete' name="{{ value['sku'] |safe }}" href="#">Del</a>
+
+                            </td>
+                      </tr>
+                {% endfor %}
+              </tbody>
+          </table>
+
+      </div>
+      {{ pagination.links }}
+
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            var productadded = false;
+            // File upload via Ajax
+             $('.delete').click(function(){
+                 if(confirm('Do you really want to delete this product')) {
+                     var el = this;
+                     var sku = this.name;
+                     $('#adderror').html('');
+                     $.ajax({
+
+                         type: 'POST',
+                         url: 'del_product/' + sku,
+                         data: null,
+                         cache: false,
+                         error: function () {
+                             $('#adderror').html('<p style="color:#EA4335;">Delete product, please try again.</p>');
+                         },
+                         success: function (resp) {
+                             if (resp == 'ok') {
+
+                                 $('#adderror').html('<p style="color:#28A74B;">Deleted!</p>');
+                                 setTimeout(function () {
+                                     location.reload(true);
+                                 }, 2000);
+
+                             } else if (resp == 'err') {
+                                 $('#adderror').html('<p style="color:#EA4335;">Erro</p>');
+                             }
+                         }
+
+                     });
+                 }
+            });
+
+
+        });
+
+
+        </script>
+{% endblock %}
