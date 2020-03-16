@@ -1,0 +1,14 @@
+CREATE DATABASE fullfill_db
+	CHARACTER SET latin1
+	COLLATE latin1_swedish_ci;
+
+CREATE TABLE fullfill_db.products (
+  name TEXT DEFAULT NULL,
+  sku TEXT DEFAULT NULL,
+  description TEXT DEFAULT NULL
+)
+ENGINE = MYISAM,
+AVG_ROW_LENGTH = 188,
+CHARACTER SET latin1,
+CHECKSUM = 0,
+COLLATE latin1_swedish_ci;
