@@ -9,7 +9,6 @@ class DBHelper:
         self.user = "root"
         self.password = ""
         self.db = "fullfill_db"
-        self.message = ""
         self.engine = None
 
     def __connect__(self):
@@ -19,7 +18,6 @@ class DBHelper:
         self.con = self.con.execution_options(
             isolation_level="READ COMMITTED"
         )
-        self.message = 'Connected'
 
     def __disconnect__(self):
         self.con.close()
