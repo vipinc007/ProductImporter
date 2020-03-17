@@ -11,14 +11,18 @@ class DBHelper:
         self.db = "fullfill_db"
         self.engine = None
 
+    def textconnect(self):
+        self.__connect__()
+
     def __connect__(self):
-        constring = "mysql://{0}:{1}@{2}/{3}?charset=utf8".format(self.user, self.password, self.host, self.db)
+        #constring = "mysql://{0}:{1}@{2}/{3}?charset=utf8".format(self.user, self.password, self.host, self.db)
+        constring = "postgres://auzatzkisdsljp:648cbc16f9f7f6a626b6262d4cecac89e23f3462a19d734a94783353a303b0e4@ec2-52-86-33-50.compute-1.amazonaws.com:5432/ddidkg3fq448st"
         self.engine = sqlalchemy.create_engine(constring, pool_recycle=3600)
         self.con = self.engine.connect()
         self.con = self.con.execution_options(
             isolation_level="READ COMMITTED"
         )
-
+        print('connected')
     def __disconnect__(self):
         self.con.close()
 
