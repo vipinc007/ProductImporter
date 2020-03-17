@@ -57,8 +57,20 @@ class DBHelper:
             df = pd.read_csv(file)
         self.__connect__()
         df.to_sql(table,
-                  con=self.engine,
+                  con=self.con,
                   index=False,
                   index_label='sku',
-                  if_exists='replace')
+                  if_exists='replace',chunksize=500)
+        self.__disconnect__()
+
+
+    def import_csv_to_db2(self, csv_file_path, table):
+        with open(csv_file_path, 'r') as file:
+            df = pd.read_csv(file)
+        self.__connect__()
+        df.to_sql(table,
+                  con=self.con,
+                  index=False,
+                  index_label='sku',
+                  if_exists='replace',chunksize=500)
         self.__disconnect__()
