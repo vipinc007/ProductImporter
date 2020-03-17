@@ -72,5 +72,5 @@ class DBHelper:
                   con=self.con,
                   index=False,
                   index_label='sku',
-                  if_exists='replace',chunksize=500)
+                  if_exists='replace')
         self.__disconnect__()
